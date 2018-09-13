@@ -68,7 +68,7 @@ ParseOVALData <- function(oval.file, verbose) {
                                                          rvest::html_text(xml2::xml_find_all(x, xpath = "./description")),
                                                          NA),
                                     status = ifelse("status" %in% oval.attrs,
-                                                    rvest::html_text(xml2::xml_find_all(x, xpath = ".//status")),
+                                                    rvest::html_text(xml2::xml_find_all(x, xpath = "./status")),
                                                     NA))
                        })
   return(ovals)
