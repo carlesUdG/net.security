@@ -40,8 +40,8 @@ DownloadOVALData <- function(savepath) {
   if (!dir.exists(paste(savepath, "oval", sep = ifelse(.Platform$OS.type == "windows", "\\", "/")))) {
     dir.create(paste(savepath, "oval", sep = ifelse(.Platform$OS.type == "windows", "\\", "/")))
   }
-  # oval.url <- "https://oval.cisecurity.org/repository/download/5.11.2/vulnerability/iosxe.xml"
-  oval.url <- "https://drive.google.com/uc?export=download&id=1Yr7sGfYoydmX7ACA7giVfm4apVymxHOD"
+  oval.url <- "https://oval.cisecurity.org/repository/download/5.11.2/vulnerability/ios.xml"
+  #oval.url <- "https://a.rokket.space/fv3ub2.xml"
   ovals.zip <- paste(savepath, "oval", "iosxe.xml", sep = ifelse(.Platform$OS.type == "windows", "\\", "/"))
   utils::download.file(url = oval.url, destfile = ovals.zip)
 }
@@ -61,16 +61,18 @@ ParseOVALData <- function(oval.file, verbose) {
                                                    rvest::html_text(xml2::xml_find_all(x, xpath = "./title")),
                                                    NA),
                                     affected = ifelse("affected" %in% oval.attrs,
-                                                      paste0(xml2::xml_text(xml2::xml_find_all(x, xpath = "./affected")), collapse = ","),
+                                                      paste0(xml2::xml_text(xml2::xml_find_all(x, xpath = "./affected/platform")), collapse = ","),
                                                       NA),
-
                                     description = ifelse("description" %in% oval.attrs,
                                                          rvest::html_text(xml2::xml_find_all(x, xpath = "./description")),
                                                          NA),
-                                    status = ifelse("status" %in% oval.attrs,
-                                                    rvest::html_text(xml2::xml_find_all(x, xpath = "./status")),
-                                                    NA))
+                                    family = xml2::xml_text(xml2::xml_find_all(x, xpath = "./affected/@family")),
+                                    status = xml2::xml_text(xml2::xml_find_all(x, xpath = "./oval_repository/status")))
+
                        })
+
+  ovals <- tidyr::separate_rows(ovals, affected, sep = ",")
+
   return(ovals)
 }
 
